@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registration Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --purple: #6b3fa0;
+      --purple-light: #f3eeff;
+      --purple-dark: #4a2880;
+      --accent: #ff6b35;
+      --white: #ffffff;
+      --gray: #6b7280;
+      --light: #fafafa;
+      --border: #e5e7eb;
+      --error: #ef4444;
+      --success: #10b981;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--light);
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background-image: 
+        radial-gradient(ellipse at 20% 20%, rgba(107,63,160,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(255,107,53,0.06) 0%, transparent 60%);
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 560px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top color bar like Google Forms */
+    .color-bar {
+      height: 10px;
+      background: linear-gradient(90deg, var(--purple), var(--accent));
+      border-radius: 12px 12px 0 0;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+      padding: 32px 36px 36px;
+      border: 1px solid var(--border);
+      border-top: none;
+      margin-bottom: 16px;
+    }
+
+    .form-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.75rem;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    .form-desc {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .required-note {
+      font-size: 0.8rem;
+      color: var(--error);
+      margin-bottom: 24px;
+    }
+
+    .field {
+      margin-bottom: 24px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .field label .req {
+      color: var(--error);
+      margin-left: 3px;
+    }
+
+    .field input {
+      width: 100%;
+      border: none;
+      border-bottom: 2px solid var(--border);
+      padding: 8px 0;
+      font-size: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      color: #1f2937;
+      background: transparent;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field input:focus {
+      border-bottom-color: var(--purple);
+    }
+
+    .field input.error-input {
+      border-bottom-color: var(--error);
+    }
+
+    .field-error {
+      font-size: 0.78rem;
+      color: var(--error);
+      margin-top: 5px;
+      display: none;
+    }
+
+    .field-error.show {
+      display: block;
+    }
+
+    /* Submit button */
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .submit-btn {
+      background: var(--purple);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(107,63,160,0.3);
+    }
+
+    .submit-btn:hover {
+      background: var(--purple-dark);
+      box-shadow: 0 4px 14px rgba(107,63,160,0.4);
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--purple);
+      font-size: 0.9rem;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      padding: 8px 0;
+      text-decoration: underline;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.92);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid #e5e7eb;
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 1rem;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    /* Error banner */
+    .error-banner {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+      color: var(--error);
+    }
+
+    .error-banner.show { display: block; }
+
+    /* Footer */
+    .footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .footer-note span {
+      color: #4285f4;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Submitting... Please wait</div>
+  </div>
+
+  <div class="wrapper">
+    <div class="color-bar"></div>
+    <div class="card">
+      <h1 class="form-title">Registration Form</h1>
+      <p class="form-desc">Please fill in your details below to complete your registration.</p>
+      <p class="required-note">* Indicates required question</p>
+
+      <div class="error-banner" id="errorBanner">
+        ⚠️ Something went wrong. Please try again.
+      </div>
+
+      <div class="field">
+        <label for="emailInput">Email Address <span class="req">*</span></label>
+        <input
+          type="email"
+          id="emailInput"
+          placeholder="Your email"
+          autocomplete="email"
+        />
+        <div class="field-error" id="emailError">Please enter a valid email address.</div>
+      </div>
+
+      <div class="field">
+        <label for="phoneInput">Phone Number <span class="req">*</span></label>
+        <input
+          type="tel"
+          id="phoneInput"
+          placeholder="Your 10-digit phone number"
+          maxlength="10"
+          autocomplete="tel"
+        />
+        <div class="field-error" id="phoneError">Please enter a valid 10-digit phone number.</div>
+      </div>
+
+      <div class="actions">
+        <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Submit</button>
+        <button class="clear-btn" onclick="clearForm()">Clear form</button>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Powered by <span>Google</span> Forms &amp; Apps Script
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // ✅ STEP 1: Paste your Apps Script Web App URL here
+    // ============================================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGlXeXa_Tv54OubMUkLQdv-8fkeONW6d-_7oJ7u5mqZv4zDule0DkSq9-y9-AwGa1SaQ/exec";
+
+    // ✅ STEP 2: Your thank you / redirect page URL
+    const REDIRECT_URL = "https://vaibhavchandel12.github.io/thankyou/";
+
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    }
+
+    function validatePhone(phone) {
+      return /^\d{10}$/.test(phone.trim());
+    }
+
+    function clearForm() {
+      document.getElementById("emailInput").value = "";
+      document.getElementById("phoneInput").value = "";
+      document.getElementById("emailError").classList.remove("show");
+      document.getElementById("phoneError").classList.remove("show");
+      document.getElementById("emailInput").classList.remove("error-input");
+      document.getElementById("phoneInput").classList.remove("error-input");
+      document.getElementById("errorBanner").classList.remove("show");
+    }
+
+    async function handleSubmit() {
+      const emailEl = document.getElementById("emailInput");
+      const phoneEl = document.getElementById("phoneInput");
+      const emailErr = document.getElementById("emailError");
+      const phoneErr = document.getElementById("phoneError");
+      const errorBanner = document.getElementById("errorBanner");
+      const submitBtn = document.getElementById("submitBtn");
+
+      // Reset errors
+      emailErr.classList.remove("show");
+      phoneErr.classList.remove("show");
+      emailEl.classList.remove("error-input");
+      phoneEl.classList.remove("error-input");
+      errorBanner.classList.remove("show");
+
+      const email = emailEl.value.trim();
+      const phone = phoneEl.value.trim();
+
+      let valid = true;
+
+      if (!validateEmail(email)) {
+        emailErr.classList.add("show");
+        emailEl.classList.add("error-input");
+        valid = false;
+      }
+
+      if (!validatePhone(phone)) {
+        phoneErr.classList.add("show");
+        phoneEl.classList.add("error-input");
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      // Show loading
+      submitBtn.disabled = true;
+      document.getElementById("loadingOverlay").classList.add("show");
+
+      try {
+        // Send data to Apps Script Web App
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("phone", phone);
+
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: formData,
+          mode: "no-cors" // Required for Apps Script
+        });
+
+        // ✅ AUTO REDIRECT after submit!
+        window.location.replace(REDIRECT_URL);
+
+      } catch (err) {
+        document.getElementById("loadingOverlay").classList.remove("show");
+        submitBtn.disabled = false;
+        errorBanner.classList.add("show");
+        console.error(err);
+      }
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") handleSubmit();
+    });
+
+    // Only allow numbers in phone field
+    document.getElementById("phoneInput").addEventListener("input", function() {
+      this.value = this.value.replace(/\D/g, "").slice(0, 10);
+    });
+  </script>
+</body>
+</html>
